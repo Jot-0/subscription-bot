@@ -48,9 +48,12 @@ def register_handlers(app: Client):
 
     @app.on_message(filters.text & filters.user(OWNER_ID))
     def collect_utr(client: Client, message: Message):
-        user_id = message.from_user.id
+        # Directly check for the user in the awaiting_utr and awaiting_plan states
+        user_id = next(iter(awaiting_utr), None) or next(iter(awaiting_plan), None)
         print(f"DEBUG: collect_utr triggered for user_id: {user_id}")
         print(f"DEBUG: awaiting_utr before check: {awaiting_utr}")
+        print(f"DEBUG: awaiting_plan before check: {awaiting_plan}")
+        
         if user_id in awaiting_utr:
             print(f"DEBUG: awaiting_utr found for user_id: {user_id}")
             subscribed_users[user_id]['utr_number'] = message.text
