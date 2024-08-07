@@ -1,5 +1,5 @@
 import logging
-from pyrogram import Client
+from pyrogram import Client, idle
 from handlers import register_handlers
 from scheduler import run_scheduler
 
@@ -28,4 +28,4 @@ if __name__ == "__main__":
     scheduler_thread.start()
 
     # Run the bot
-    app.idle()
+    idle()
