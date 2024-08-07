@@ -73,7 +73,7 @@ def register_handlers(app: Client):
 
     @app.on_message(filters.text & filters.user(OWNER_ID))
     def collect_utr(client: Client, message: Message):
-        user_id = message.from_user.id
+        user_id = message.chat.id
         print(f"collect_utr triggered for user_id: {user_id}")  # Debug print
         if user_id in awaiting_utr:
             print(f"awaiting_utr found for user_id: {user_id}")  # Debug print
@@ -192,8 +192,10 @@ def register_handlers(app: Client):
 
     @app.on_message(filters.text & filters.user(OWNER_ID))
     def collect_new_plan_date(client: Client, message: Message):
-        user_id = message.chat.id
+        user_id = message.from_user.id
+        print(f"collect_new_plan_date triggered for user_id: {user_id}")  # Debug print
         if user_id in awaiting_new_plan:
+            print(f"awaiting_new_plan found for user_id: {user_id}")  # Debug print
             try:
                 # Convert date to desired format
                 plan_end_date = datetime.strptime(message.text, "%d/%m/%Y").strftime("%d/%m/%Y")
@@ -202,3 +204,11 @@ def register_handlers(app: Client):
                 message.reply_text('Subscription plan end date updated!')
             except ValueError:
                 message.reply_text('Invalid date format. Please use DD/MM/YYYY.')
+
+def main():
+    app = Client("my_bot")
+    register_handlers(app)
+    app.run()
+
+if __name__ == "__main__":
+    main()
