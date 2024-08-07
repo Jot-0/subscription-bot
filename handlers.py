@@ -39,6 +39,7 @@ def register_handlers(app: Client):
                 awaiting_utr[user.id] = True
                 message.reply_text(f"User {user.first_name} ({user.username}) added successfully! Please send their UTR number.")
                 print(f"DEBUG: User {user.id} added. Awaiting UTR.")
+                print(f"DEBUG: awaiting_utr: {awaiting_utr}")
             except Exception as e:
                 message.reply_text(f"Failed to add user: {e}")
                 print(f"DEBUG: Error adding user: {e}")
@@ -49,6 +50,7 @@ def register_handlers(app: Client):
     def collect_utr(client: Client, message: Message):
         user_id = message.from_user.id
         print(f"DEBUG: collect_utr triggered for user_id: {user_id}")
+        print(f"DEBUG: awaiting_utr before check: {awaiting_utr}")
         if user_id in awaiting_utr:
             print(f"DEBUG: awaiting_utr found for user_id: {user_id}")
             subscribed_users[user_id]['utr_number'] = message.text
@@ -56,6 +58,7 @@ def register_handlers(app: Client):
             del awaiting_utr[user_id]
             awaiting_plan[user_id] = True
             message.reply_text('UTR number saved! Now please send the subscription plan end date (DD/MM/YYYY).')
+            print(f"DEBUG: awaiting_plan: {awaiting_plan}")
         elif user_id in awaiting_plan:
             print(f"DEBUG: awaiting_plan found for user_id: {user_id}")
             try:
@@ -66,6 +69,8 @@ def register_handlers(app: Client):
                 message.reply_text('Subscription plan end date saved! User has been fully registered.')
             except ValueError:
                 message.reply_text('Invalid date format. Please use DD/MM/YYYY.')
+        else:
+            print(f"DEBUG: user_id {user_id} not found in awaiting_utr or awaiting_plan")
 
 def main():
     app.run()
