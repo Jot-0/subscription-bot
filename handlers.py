@@ -53,7 +53,7 @@ def register_handlers(app: Client):
         print(f"DEBUG: collect_utr triggered for user_id: {user_id}")
         print(f"DEBUG: awaiting_utr before check: {awaiting_utr}")
         print(f"DEBUG: awaiting_plan before check: {awaiting_plan}")
-        
+
         if user_id in awaiting_utr:
             print(f"DEBUG: awaiting_utr found for user_id: {user_id}")
             subscribed_users[user_id]['utr_number'] = message.text
@@ -75,6 +75,7 @@ def register_handlers(app: Client):
                 message.reply_text('Invalid date format. Please use DD/MM/YYYY.')
         else:
             print(f"DEBUG: user_id {user_id} not found in awaiting_utr or awaiting_plan")
+            message.reply_text("No user is currently awaiting input. Please start by adding a user.")
 
 def main():
     app.run()
