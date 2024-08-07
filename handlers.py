@@ -72,16 +72,17 @@ def register_handlers(app: Client):
 
     @app.on_message(filters.text & filters.user(OWNER_ID))
     def collect_utr(client: Client, message: Message):
-        # Ensure the message chat ID is a valid user ID in the awaiting lists
         user_id = message.chat.id
+        print(f"collect_utr triggered for user_id: {user_id}")  # Debug print
         if user_id in awaiting_utr:
+            print(f"awaiting_utr found for user_id: {user_id}")  # Debug print
             subscribed_users[user_id]['utr_number'] = message.text
             del awaiting_utr[user_id]
             awaiting_plan[user_id] = True
             message.reply_text('UTR number saved! Now please send the subscription plan end date (DD/MM/YYYY).')
         elif user_id in awaiting_plan:
+            print(f"awaiting_plan found for user_id: {user_id}")  # Debug print
             try:
-                # Convert date to desired format
                 plan_end_date = datetime.strptime(message.text, "%d/%m/%Y").strftime("%d/%m/%Y")
                 subscribed_users[user_id]['plan_end_date'] = plan_end_date
                 del awaiting_plan[user_id]
@@ -90,8 +91,8 @@ def register_handlers(app: Client):
             except ValueError:
                 message.reply_text('Invalid date format. Please use DD/MM/YYYY.')
         elif user_id in awaiting_new_plan:
+            print(f"awaiting_new_plan found for user_id: {user_id}")  # Debug print
             try:
-                # Convert date to desired format
                 plan_end_date = datetime.strptime(message.text, "%d/%m/%Y").strftime("%d/%m/%Y")
                 subscribed_users[user_id]['plan_end_date'] = plan_end_date
                 del awaiting_new_plan[user_id]
@@ -122,7 +123,7 @@ def register_handlers(app: Client):
         else:
             message.reply_text("No users found.")
 
-    @app.on_message(filters.command("help"))
+    @app.on_message(filters.command("help") & filters.user(OWNER_ID))
     def help_command(client: Client, message: Message):
         help_text = (
             "/start - Start the bot and see the welcome message\n"
@@ -200,5 +201,3 @@ def register_handlers(app: Client):
                 message.reply_text('Subscription plan end date updated!')
             except ValueError:
                 message.reply_text('Invalid date format. Please use DD/MM/YYYY.')
-
-  
