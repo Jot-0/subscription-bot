@@ -65,6 +65,7 @@ def register_handlers(app: Client):
                 }
                 awaiting_utr[user.id] = True
                 message.reply_text(f'User {user.first_name} ({user.username}) added successfully! Please send their UTR number.')
+                print(f"User {user.id} added. Awaiting UTR.")
             except Exception as e:
                 message.reply_text(f'Failed to add user: {e}')
         else:
@@ -72,7 +73,7 @@ def register_handlers(app: Client):
 
     @app.on_message(filters.text & filters.user(OWNER_ID))
     def collect_utr(client: Client, message: Message):
-        user_id = message.chat.id
+        user_id = message.from_user.id
         print(f"collect_utr triggered for user_id: {user_id}")  # Debug print
         if user_id in awaiting_utr:
             print(f"awaiting_utr found for user_id: {user_id}")  # Debug print
