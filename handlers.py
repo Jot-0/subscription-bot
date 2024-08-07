@@ -2,6 +2,7 @@ from pyrogram import Client, filters
 from pyrogram.types import Message
 from config import OWNER_ID
 from state import subscribed_users, awaiting_utr, awaiting_plan, awaiting_new_plan
+from datetime import datetime
 
 def register_handlers(app: Client):
 
@@ -37,23 +38,30 @@ def register_handlers(app: Client):
                 }
                 awaiting_utr[user.id] = True
                 message.reply_text(f"User {user.first_name} ({user.username}) added successfully! Please send their UTR number.")
+                print(f"DEBUG: User {user.id} added. Awaiting UTR.")
             except Exception as e:
                 message.reply_text(f"Failed to add user: {e}")
+                print(f"DEBUG: Error adding user: {e}")
         else:
             message.reply_text("Please provide a user ID.")
 
     @app.on_message(filters.text & filters.user(OWNER_ID))
     def collect_utr(client: Client, message: Message):
         user_id = message.from_user.id
+        print(f"DEBUG: collect_utr triggered for user_id: {user_id}")
         if user_id in awaiting_utr:
+            print(f"DEBUG: awaiting_utr found for user_id: {user_id}")
             subscribed_users[user_id]['utr_number'] = message.text
+            print(f"DEBUG: UTR number {message.text} saved for user_id: {user_id}")
             del awaiting_utr[user_id]
             awaiting_plan[user_id] = True
             message.reply_text('UTR number saved! Now please send the subscription plan end date (DD/MM/YYYY).')
         elif user_id in awaiting_plan:
+            print(f"DEBUG: awaiting_plan found for user_id: {user_id}")
             try:
                 plan_end_date = datetime.strptime(message.text, "%d/%m/%Y").strftime("%d/%m/%Y")
                 subscribed_users[user_id]['plan_end_date'] = plan_end_date
+                print(f"DEBUG: Plan end date {plan_end_date} saved for user_id: {user_id}")
                 del awaiting_plan[user_id]
                 message.reply_text('Subscription plan end date saved! User has been fully registered.')
             except ValueError:
