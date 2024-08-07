@@ -1,7 +1,7 @@
 from pyrogram import Client, filters
 from pyrogram.types import Message
 from config import OWNER_ID
-from state import subscribed_users, awaiting_utr, awaiting_plan, awaiting_new_plan
+from state import subscribed_users, awaiting_utr, awaiting_plan
 from datetime import datetime
 
 def register_handlers(app: Client):
@@ -48,7 +48,7 @@ def register_handlers(app: Client):
 
     @app.on_message(filters.text & filters.user(OWNER_ID))
     def collect_utr(client: Client, message: Message):
-        user_id = message.from_user.id
+        user_id = message.chat.id
         print(f"DEBUG: collect_utr triggered for user_id: {user_id}")
         print(f"DEBUG: awaiting_utr before check: {awaiting_utr}")
         if user_id in awaiting_utr:
