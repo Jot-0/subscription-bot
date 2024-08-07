@@ -68,6 +68,7 @@ def register_handlers(app: Client):
                 del awaiting_plan[user_id]
                 message.reply_text('Subscription plan end date saved! User has been fully registered.')
             except ValueError:
+                print(f"DEBUG: ValueError for date {message.text}")
                 message.reply_text('Invalid date format. Please use DD/MM/YYYY.')
         else:
             print(f"DEBUG: user_id {user_id} not found in awaiting_utr or awaiting_plan")
