@@ -48,7 +48,7 @@ def register_handlers(app: Client):
 
     @app.on_message(filters.text & filters.user(OWNER_ID))
     def collect_utr(client: Client, message: Message):
-        user_id = message.chat.id
+        user_id = message.from_user.id  # Correctly use the sender's user ID
         print(f"DEBUG: collect_utr triggered for user_id: {user_id}")
         print(f"DEBUG: awaiting_utr before check: {awaiting_utr}")
         if user_id in awaiting_utr:
