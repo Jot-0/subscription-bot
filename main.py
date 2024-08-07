@@ -22,9 +22,9 @@ if __name__ == "__main__":
     # Start the Pyrogram client
     app.start()
 
-    # Run the scheduler in a separate thread
+    # Run the scheduler in a separate thread and pass the app instance
     import threading
-    scheduler_thread = threading.Thread(target=run_scheduler)
+    scheduler_thread = threading.Thread(target=run_scheduler, args=(app,))
     scheduler_thread.start()
 
     # Run the bot
