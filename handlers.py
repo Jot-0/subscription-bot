@@ -5,17 +5,12 @@ from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from config import OWNER_ID
 from scheduler import check_subscriptions
+from state import subscribed_users, awaiting_utr, awaiting_plan, awaiting_new_plan
 
 # Dictionary to store custom messages
 custom_messages = {
     'start': 'Hi! Welcome to the Subscription Bot. Use /add_user <user_id> to add a user.'
 }
-
-# Dictionary to store subscribed users
-subscribed_users = {}
-awaiting_utr = {}
-awaiting_plan = {}
-awaiting_new_plan = {}
 
 def register_handlers(app: Client):
     @app.on_message(filters.command("start"))
