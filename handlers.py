@@ -114,6 +114,19 @@ def register_handlers(app: Client):
         else:
             message.reply_text("Please provide a user ID.")
 
+    @app.on_message(filters.command("remove_user") & filters.user(OWNER_ID))
+    def remove_user(client: Client, message: Message):
+        if len(message.command) > 1:
+            user_id = int(message.command[1])
+            if user_id in subscribed_users:
+                del subscribed_users[user_id]
+                message.reply_text(f"User {user_id} has been removed.")
+                print(f"DEBUG: User {user_id} removed.")
+            else:
+                message.reply_text("User not found.")
+        else:
+            message.reply_text("Please provide a user ID.")
+
     @app.on_callback_query()
     def callback_query_handler(client: Client, callback_query: CallbackQuery):
         data = callback_query.data
