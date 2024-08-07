@@ -2,20 +2,45 @@ import schedule
 import time
 from datetime import datetime, timedelta
 from pyrogram import Client, filters
-from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
+from pyrogram.types import Message, InputMediaPhoto, InlineKeyboardMarkup, InlineKeyboardButton
 from config import OWNER_ID
 from scheduler import check_subscriptions
 from state import subscribed_users, awaiting_utr, awaiting_plan, awaiting_new_plan
 
 # Dictionary to store custom messages
 custom_messages = {
-    'start': 'Hi! Welcome to the Subscription Bot. Use /add_user <user_id> to add a user.'
+    'start': ('⭐️ Powered By ❤️ AJxLeech Mirror\n\n'
+              '➡️ UNZIP ALLOWED ✅\n'
+              '➡️ ZIP ALLOW ✅\n'
+              '➡️ PRIMUM LEECH 4GB ✅\n'
+              '➡️ MIRROR ALLOWED ✅\n'
+              '➡️ CLONE ALLOWED ✅\n'
+              '➡️ YTDL LEECH ALLOWED ✅\n'
+              '➡️ TORRENT SEARCH ✅\n'
+              '➡️ METADATA SUPPORT ✅\n'
+              '➡️ TERA BOX LINK SUPPORT ✅\n'
+              '➡️ JIO DRIVE LINK SUPPORT ✅\n'
+              '➡️ MEGA LINK SUPPORT ✅\n'
+              '➡️ Support YouTube playlist & Link ✅\n'
+              '➡️ TeamDrive and Gdrive link Support ✅\n'
+              '➡️ NSFW ALLOW ✅\n'
+              '➡️ Bot Run 24/7 ✅\n'
+              '➡️ 1TB Bot Storage ✅\n'
+              '➡️ Log Or Dump Access ✅\n'
+              '➡️ Instant Released Ott Movies Web Series Files ✅\n\n'
+              'Note - Slots are available on a first-come, first-served basis. Once all slots are filled, the timing for the next available slot is unknown.\n\n'
+              '🔹 Cheap Price 2️⃣\n\n'
+              '💯 Contact @Sam_Dude2 🐼\n\n'
+              '➡️ Proof - @All_ott_Primium_proof\n\n'
+              '➡️ https://t.me/All_Ott_Premium01'),
+    'start_image': 'file-hnJ0fEDCMhcnSdrYzUcqmXz2'  # This should be the file ID of the uploaded image
 }
 
 def register_handlers(app: Client):
     @app.on_message(filters.command("start"))
     def start(client: Client, message: Message):
-        message.reply_text(custom_messages['start'])
+        media = InputMediaPhoto(custom_messages['start_image'], caption=custom_messages['start'])
+        client.send_media_group(chat_id=message.chat.id, media=[media])
 
     @app.on_message(filters.command("set_start") & filters.user(OWNER_ID))
     def set_start(client: Client, message: Message):
@@ -48,6 +73,7 @@ def register_handlers(app: Client):
 
     @app.on_message(filters.text & filters.user(OWNER_ID))
     def collect_utr(client: Client, message: Message):
+        # Ensure the message chat ID is a valid user ID in the awaiting lists
         user_id = message.chat.id
         if user_id in awaiting_utr:
             subscribed_users[user_id]['utr_number'] = message.text
