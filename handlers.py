@@ -3,12 +3,41 @@ from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, 
 from config import OWNER_ID
 from state import subscribed_users, awaiting_utr, awaiting_plan
 from datetime import datetime
-
+InputMediaPhoto
 def register_handlers(app: Client):
 
     @app.on_message(filters.command("start"))
     def start(client: Client, message: Message):
-        message.reply_text("Bot is working!")
+                start_text = (
+            '⭐️ Powered By ❤️ AJxLeech Mirror\n\n'
+            '➡️ UNZIP ALLOWED ✅\n'
+            '➡️ ZIP ALLOW ✅\n'
+            '➡️ PRIMUM LEECH 4GB ✅\n'
+            '➡️ MIRROR ALLOWED ✅\n'
+            '➡️ CLONE ALLOWED ✅\n'
+            '➡️ YTDL LEECH ALLOWED ✅\n'
+            '➡️ TORRENT SEARCH ✅\n'
+            '➡️ METADATA SUPPORT ✅\n'
+            '➡️ TERA BOX LINK SUPPORT ✅\n'
+            '➡️ JIO DRIVE LINK SUPPORT ✅\n'
+            '➡️ MEGA LINK SUPPORT ✅\n'
+            '➡️ Support YouTube playlist & Link ✅\n'
+            '➡️ TeamDrive and Gdrive link Support ✅\n'
+            '➡️ NSFW ALLOW ✅\n'
+            '➡️ Bot Run 24/7 ✅\n'
+            '➡️ 1TB Bot Storage ✅\n'
+            '➡️ Log Or Dump Access ✅\n'
+            '➡️ Instant Released Ott Movies Web Series Files ✅\n\n'
+            'Note - Slots are available on a first-come, first-served basis. Once all slots are filled, the timing for the next available slot is unknown.\n\n'
+            '🔹 Cheap Price 2️⃣\n\n'
+            '💯 Contact @Sam_Dude2 🐼\n\n'
+            '➡️ Proof - @All_ott_Primium_proof\n\n'
+            '➡️ https://t.me/All_Ott_Premium01'
+        )
+        start_image = 'AgACAgUAAxkBAAMtZrMErIvhuIiSpnM7AAFU9QI9o2RUAAIqwDEbNWOZVQ-9vsXDAAEOcgAIAQADAgADeQAHHgQ'
+        
+        client.send_photo(chat_id=message.chat.id, photo=start_image, caption=start_text)
+
 
     @app.on_message(filters.command("help"))
     def help_command(client: Client, message: Message):
