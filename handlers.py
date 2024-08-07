@@ -2,7 +2,7 @@ import schedule
 import time
 from datetime import datetime, timedelta
 from pyrogram import Client, filters
-from pyrogram.types import Message, InputMediaPhoto, InlineKeyboardMarkup, InlineKeyboardButton
+from pyrogram.types import Message, InputMediaPhoto, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from config import OWNER_ID
 from scheduler import check_subscriptions
 from state import subscribed_users, awaiting_utr, awaiting_plan, awaiting_new_plan
@@ -188,3 +188,16 @@ def register_handlers(app: Client):
             user_id = int(data.split("_")[1])
             awaiting_new_plan[user_id] = True
             callback_query.message.edit_text(f'Please send the new subscription plan end date for user ID {user_id} (DD/MM/YYYY).')
+
+    @app.on_message(filters.text & filters.user(OWNER_ID))
+    def collect_new_plan_date(client: Client, message: Message):
+        user_id = message.chat.id
+        if user_id in awaiting_new_plan:
+            try:
+                # Convert date to desired format
+                plan_end_date = datetime.strptime(message.text, "%d/%m/%Y").strftime("%d/%m/%Y")
+                subscribed_users[user_id]['plan_end_date'] = plan_end_date
+                del awaiting_new_plan[user_id]
+                message.reply_text('Subscription plan end date updated!')
+            except ValueError:
+                message.reply_text('Invalid date format. Please use DD/MM/YYYY.')
