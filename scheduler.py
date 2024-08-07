@@ -3,11 +3,9 @@ import time
 from datetime import datetime, timedelta
 from pyrogram import Client
 from config import OWNER_ID
+from state import subscribed_users
 
-# Dictionary to store subscribed users (imported from handlers)
-from handlers import subscribed_users
-
-def check_subscriptions():
+def check_subscriptions(app: Client):
     today = datetime.now().date()
     two_days_later = today + timedelta(days=2)
     
@@ -24,7 +22,7 @@ def check_subscriptions():
             app.send_message(user_id, message_text)
             app.send_message(OWNER_ID, f"Reminder: {user_info['first_name']}'s subscription started on {start_date} and will end in 2 days.")
 
-                if plan_end_date == today:
+        if plan_end_date == today:
             # Send notification on the end date
             message_text = (
                 f"Your subscription plan started on {start_date} and ends today. Please contact @Sam_Dude2 to renew your subscription."
@@ -33,10 +31,9 @@ def check_subscriptions():
             app.send_message(OWNER_ID, f"Notification: {user_info['first_name']}'s subscription started on {start_date} and ends today.")
 
 # Schedule the job daily at 12:00 PM
-schedule.every().day.at("12:00").do(check_subscriptions)
+def run_scheduler(app: Client):
+    schedule.every().day.at("12:00").do(check_subscriptions, app)
 
-def run_scheduler():
     while True:
         schedule.run_pending()
         time.sleep(1)
-
