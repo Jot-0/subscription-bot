@@ -69,6 +69,11 @@ def register_handlers(app: Client):
                 print(f"DEBUG: Plan end date {plan_end_date} saved for user_id: {user_id}")
                 del awaiting_plan[user_id]
                 message.reply_text('Subscription plan end date saved! User has been fully registered.')
+                
+                # Send confirmation messages
+                client.send_message(user_id, f"Your subscription has been registered.\nStart Date: {subscribed_users[user_id]['start_date']}\nEnd Date: {plan_end_date}")
+                client.send_message(OWNER_ID, f"User {subscribed_users[user_id]['first_name']} ({user_id}) subscription registered.\nStart Date: {subscribed_users[user_id]['start_date']}\nEnd Date: {plan_end_date}")
+                
             except ValueError:
                 print(f"DEBUG: ValueError for date {message.text}")
                 message.reply_text('Invalid date format. Please use DD/MM/YYYY.')
