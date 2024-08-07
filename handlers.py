@@ -2,7 +2,7 @@ import schedule
 import time
 from datetime import datetime, timedelta
 from pyrogram import Client, filters
-from pyrogram.types import Message, InputMediaPhoto, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
+from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from config import OWNER_ID
 from scheduler import check_subscriptions
 from state import subscribed_users, awaiting_utr, awaiting_plan, awaiting_new_plan
@@ -33,14 +33,13 @@ custom_messages = {
               '💯 Contact @Sam_Dude2 🐼\n\n'
               '➡️ Proof - @All_ott_Primium_proof\n\n'
               '➡️ https://t.me/All_Ott_Premium01'),
-    'start_image': 'file-AgACAgUAAxkBAAJsN2azAmCD5LvqJ9wtMOXYHeDFDoUQAAIqwDEbNWOZVUq4uuhj7o1ZAQADAgADeQADNQQ'  # This should be the file ID of the uploaded image
+    'start_image': 'AgACAgUAAxkBAAMtZrMErIvhuIiSpnM7AAFU9QI9o2RUAAIqwDEbNWOZVQ-9vsXDAAEOcgAIAQADAgADeQAHHgQ'  # Replace with the correct file ID
 }
 
 def register_handlers(app: Client):
     @app.on_message(filters.command("start"))
     def start(client: Client, message: Message):
-        media = InputMediaPhoto(custom_messages['start_image'], caption=custom_messages['start'])
-        client.send_media_group(chat_id=message.chat.id, media=[media])
+        client.send_photo(chat_id=message.chat.id, photo=custom_messages['start_image'], caption=custom_messages['start'])
 
     @app.on_message(filters.command("set_start") & filters.user(OWNER_ID))
     def set_start(client: Client, message: Message):
@@ -201,3 +200,5 @@ def register_handlers(app: Client):
                 message.reply_text('Subscription plan end date updated!')
             except ValueError:
                 message.reply_text('Invalid date format. Please use DD/MM/YYYY.')
+
+  
