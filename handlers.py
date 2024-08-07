@@ -3,12 +3,12 @@ from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, 
 from config import OWNER_ID
 from state import subscribed_users, awaiting_utr, awaiting_plan
 from datetime import datetime
-InputMediaPhoto
+
 def register_handlers(app: Client):
 
     @app.on_message(filters.command("start"))
     def start(client: Client, message: Message):
-                start_text = (
+        start_text = (
             '⭐️ Powered By ❤️ AJxLeech Mirror\n\n'
             '➡️ UNZIP ALLOWED ✅\n'
             '➡️ ZIP ALLOW ✅\n'
@@ -37,7 +37,6 @@ def register_handlers(app: Client):
         start_image = 'AgACAgUAAxkBAAMtZrMErIvhuIiSpnM7AAFU9QI9o2RUAAIqwDEbNWOZVQ-9vsXDAAEOcgAIAQADAgADeQAHHgQ'
         
         client.send_photo(chat_id=message.chat.id, photo=start_image, caption=start_text)
-
 
     @app.on_message(filters.command("help"))
     def help_command(client: Client, message: Message):
