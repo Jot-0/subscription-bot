@@ -73,11 +73,12 @@ def register_handlers(app: Client):
 
     @app.on_message(filters.text & filters.user(OWNER_ID))
     def collect_utr(client: Client, message: Message):
-        user_id = message.chat.id
+        user_id = message.from_user.id
         print(f"collect_utr triggered for user_id: {user_id}")  # Debug print
         if user_id in awaiting_utr:
             print(f"awaiting_utr found for user_id: {user_id}")  # Debug print
             subscribed_users[user_id]['utr_number'] = message.text
+            print(f"UTR number {message.text} saved for user_id: {user_id}")  # Debug print
             del awaiting_utr[user_id]
             awaiting_plan[user_id] = True
             message.reply_text('UTR number saved! Now please send the subscription plan end date (DD/MM/YYYY).')
@@ -86,6 +87,7 @@ def register_handlers(app: Client):
             try:
                 plan_end_date = datetime.strptime(message.text, "%d/%m/%Y").strftime("%d/%m/%Y")
                 subscribed_users[user_id]['plan_end_date'] = plan_end_date
+                print(f"Plan end date {plan_end_date} saved for user_id: {user_id}")  # Debug print
                 del awaiting_plan[user_id]
                 message.reply_text('Subscription plan end date saved! User has been fully registered.')
                 send_confirmation_message(client, user_id)
@@ -96,6 +98,7 @@ def register_handlers(app: Client):
             try:
                 plan_end_date = datetime.strptime(message.text, "%d/%m/%Y").strftime("%d/%m/%Y")
                 subscribed_users[user_id]['plan_end_date'] = plan_end_date
+                print(f"New plan end date {plan_end_date} saved for user_id: {user_id}")  # Debug print
                 del awaiting_new_plan[user_id]
                 message.reply_text('Subscription plan end date updated!')
             except ValueError:
@@ -111,6 +114,7 @@ def register_handlers(app: Client):
                 f"Please contact @Sam_Dude2 if you have any questions."
             )
             client.send_message(user_id, message_text)
+            print(f"Confirmation message sent to user_id: {user_id}")  # Debug print
 
     @app.on_message(filters.command("all_users") & filters.user(OWNER_ID))
     def all_users(client: Client, message: Message):
@@ -144,6 +148,7 @@ def register_handlers(app: Client):
             if user_id in subscribed_users:
                 del subscribed_users[user_id]
                 message.reply_text(f'User with ID {user_id} has been removed successfully.')
+                print(f"User with ID {user_id} removed.")  # Debug print
             else:
                 message.reply_text(f'User with ID {user_id} not found.')
         else:
