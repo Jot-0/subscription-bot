@@ -33,7 +33,7 @@ custom_messages = {
               '💯 Contact @Sam_Dude2 🐼\n\n'
               '➡️ Proof - @All_ott_Primium_proof\n\n'
               '➡️ https://t.me/All_Ott_Premium01'),
-    'start_image': 'AgACAgUAAxkBAAJsN2azAmCD5LvqJ9wtMOXYHeDFDoUQAAIqwDEbNWOZVUq4uuhj7o1ZAQADAgADeQADNQQ'  # This should be the file ID of the uploaded image
+    'start_image': 'file-AgACAgUAAxkBAAJsN2azAmCD5LvqJ9wtMOXYHeDFDoUQAAIqwDEbNWOZVUq4uuhj7o1ZAQADAgADeQADNQQ'  # This should be the file ID of the uploaded image
 }
 
 def register_handlers(app: Client):
