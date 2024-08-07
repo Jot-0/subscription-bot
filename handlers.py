@@ -53,7 +53,7 @@ def register_handlers(app: Client):
         print(f"DEBUG: awaiting_utr before check: {awaiting_utr}")
         print(f"DEBUG: awaiting_plan before check: {awaiting_plan}")
 
-        if user_id in awaiting_utr:
+        if user_id and user_id in awaiting_utr:
             print(f"DEBUG: awaiting_utr found for user_id: {user_id}")
             subscribed_users[user_id]['utr_number'] = message.text
             print(f"DEBUG: UTR number {message.text} saved for user_id: {user_id}")
@@ -61,7 +61,7 @@ def register_handlers(app: Client):
             awaiting_plan[user_id] = True
             message.reply_text('UTR number saved! Now please send the subscription plan end date (DD/MM/YYYY).')
             print(f"DEBUG: awaiting_plan: {awaiting_plan}")
-        elif user_id in awaiting_plan:
+        elif user_id and user_id in awaiting_plan:
             print(f"DEBUG: awaiting_plan found for user_id: {user_id}")
             try:
                 plan_end_date = datetime.strptime(message.text, "%d/%m/%Y").strftime("%d/%m/%Y")
@@ -80,7 +80,7 @@ def register_handlers(app: Client):
     def all_users(client: Client, message: Message):
         if subscribed_users:
             buttons = [
-                [InlineKeyboardButton(f"{user['first_name']} ({user_id})", callback_data=str(user_id))]
+                [InlineKeyboardButton(f"{user['first_name']} ({user_id})", callback_data=f"info_{user_id}")]
                 for user_id, user in subscribed_users.items()
             ]
             reply_markup = InlineKeyboardMarkup(buttons)
@@ -118,7 +118,27 @@ def register_handlers(app: Client):
     def callback_query_handler(client: Client, callback_query: CallbackQuery):
         data = callback_query.data
         user_id = int(data.split("_")[1])
-        if data.startswith("remove_"):
+        if data.startswith("info_"):
+            user = subscribed_users.get(user_id)
+            if user:
+                details = (
+                    f"User Details:\n"
+                    f"First Name: {user['first_name']}\n"
+                    f"Last Name: {user['last_name']}\n"
+                    f"Username: {user['username']}\n"
+                    f"UTR Number: {user.get('utr_number', 'N/A')}\n"
+                    f"Start Date: {user.get('start_date', 'N/A')}\n"
+                    f"Subscription End Date: {user.get('plan_end_date', 'N/A')}"
+                )
+                buttons = [
+                    [InlineKeyboardButton("Remove User", callback_data=f"remove_{user_id}"),
+                     InlineKeyboardButton("Edit Plan", callback_data=f"edit_{user_id}")]
+                ]
+                reply_markup = InlineKeyboardMarkup(buttons)
+                callback_query.message.edit_text(details, reply_markup=reply_markup)
+            else:
+                callback_query.answer("User not found.")
+        elif data.startswith("remove_"):
             if user_id in subscribed_users:
                 del subscribed_users[user_id]
                 callback_query.answer("User removed successfully.")
