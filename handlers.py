@@ -52,7 +52,7 @@ def register_handlers(app: Client):
         )
         message.reply_text(help_text)
     @app.on_message(filters.command("broadcast") & filters.user(OWNER_ID))
-def broadcast_message(client: Client, message: Message):
+    def broadcast_message(client: Client, message: Message):
     if not subscribed_users:
         message.reply_text("There are no users to broadcast the message.")
         return
