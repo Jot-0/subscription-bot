@@ -1,14 +1,19 @@
 from pyrogram import Client, filters
-from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
+from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, InputMediaPhoto
 from config import OWNER_ID
-from state import subscribed_users, awaiting_utr, awaiting_plan
+from state import subscribed_users, awaiting_utr, awaiting_plan, all_users
 from datetime import datetime
-from pyrogram.types import InputMediaPhoto
+
+# Dictionary to keep track of broadcast state
+awaiting_broadcast = {}
 
 def register_handlers(app: Client):
 
     @app.on_message(filters.command("start"))
     def start(client: Client, message: Message):
+        # Track all users who interact with the bot
+        all_users.add(message.from_user.id)
+
         start_text = (
             '⭐️ Powered By ❤️ AJxLeech Mirror\n\n'
             '➡️ UNZIP ALLOWED ✅\n'
@@ -41,6 +46,9 @@ def register_handlers(app: Client):
 
     @app.on_message(filters.command("help"))
     def help_command(client: Client, message: Message):
+        # Track all users who interact with the bot
+        all_users.add(message.from_user.id)
+
         help_text = (
             "Available commands:\n"
             "/start - Start the bot\n"
@@ -49,44 +57,59 @@ def register_handlers(app: Client):
             "/remove_user <user_id> - Remove a user\n"
             "/all_users - List all users\n"
             "/user_info <user_id> - Get user information\n"
+            "/broadcast - Broadcast a message to all users\n"
         )
         message.reply_text(help_text)
+
     @app.on_message(filters.command("broadcast") & filters.user(OWNER_ID))
+    def broadcast_command(client: Client, message: Message):
+        awaiting_broadcast[message.from_user.id] = True
+        message.reply_text("Please send the message you want to broadcast (text, photo with caption, or forwarded message).")
+
+    @app.on_message(filters.user(OWNER_ID) & filters.create(lambda _, __, message: awaiting_broadcast.get(message.from_user.id)))
     def broadcast_message(client: Client, message: Message):
-    if not subscribed_users:
-        message.reply_text("There are no users to broadcast the message.")
-        return
+        if message.from_user.id not in awaiting_broadcast:
+            return
 
-    # Check if the message is a text message
-    if message.text:
-        for user_id in subscribed_users.keys():
-            try:
-                client.send_message(chat_id=user_id, text=message.text)
-            except Exception as e:
-                print(f"Failed to send message to {user_id}: {e}")
+        del awaiting_broadcast[message.from_user.id]
 
-    # Check if the message is a photo with caption
-    elif message.photo:
-        for user_id in subscribed_users.keys():
-            try:
-                client.send_photo(chat_id=user_id, photo=message.photo.file_id, caption=message.caption)
-            except Exception as e:
-                print(f"Failed to send photo to {user_id}: {e}")
+        if not all_users:
+            message.reply_text("There are no users to broadcast the message.")
+            return
 
-    # Check if the message is a forwarded message
-    elif message.forward_from_message_id:
-        for user_id in subscribed_users.keys():
-            try:
-                client.forward_messages(chat_id=user_id, from_chat_id=message.chat.id, message_ids=message.message_id)
-            except Exception as e:
-                print(f"Failed to forward message to {user_id}: {e}")
+        # Broadcast text message
+        if message.text:
+            for user_id in all_users:
+                try:
+                    client.send_message(chat_id=user_id, text=message.text)
+                except Exception as e:
+                    print(f"Failed to send message to {user_id}: {e}")
 
-    else:
-        message.reply_text("Unsupported message type. Please send text, photo, or forwarded message.")
+        # Broadcast photo with caption
+        elif message.photo:
+            for user_id in all_users:
+                try:
+                    client.send_photo(chat_id=user_id, photo=message.photo.file_id, caption=message.caption)
+                except Exception as e:
+                    print(f"Failed to send photo to {user_id}: {e}")
 
-    message.reply_text("Broadcast message sent.")
+        # Broadcast forwarded message
+        elif message.forward_from_message_id:
+            for user_id in all_users:
+                try:
+                    client.forward_messages(chat_id=user_id, from_chat_id=message.chat.id, message_ids=message.message_id)
+                except Exception as e:
+                    print(f"Failed to forward message to {user_id}: {e}")
+
+        else:
+            message.reply_text("Unsupported message type. Please send text, photo, or forwarded message.")
+
+        message.reply_text("Broadcast message sent.")
+
     @app.on_message(filters.command("add_user") & filters.user(OWNER_ID))
     def add_user(client: Client, message: Message):
+        all_users.add(message.from_user.id)  # Track all users who interact with the bot
+
         if len(message.command) > 1:
             user_id = int(message.command[1])
             try:
@@ -110,6 +133,8 @@ def register_handlers(app: Client):
 
     @app.on_message(filters.text & filters.user(OWNER_ID) & filters.create(lambda _, __, message: bool(awaiting_utr) or bool(awaiting_plan)))
     def collect_utr(client: Client, message: Message):
+        all_users.add(message.from_user.id)  # Track all users who interact with the bot
+
         user_id = next(iter(awaiting_utr), None) or next(iter(awaiting_plan), None)
         print(f"DEBUG: collect_utr triggered for user_id: {user_id}")
         print(f"DEBUG: awaiting_utr before check: {awaiting_utr}")
@@ -144,7 +169,9 @@ def register_handlers(app: Client):
             message.reply_text("No user is currently awaiting input. Please start by adding a user.")
 
     @app.on_message(filters.command("all_users") & filters.user(OWNER_ID))
-    def all_users(client: Client, message: Message):
+    def all_users_command(client: Client, message: Message):
+        all_users.add(message.from_user.id)  # Track all users who interact with the bot
+
         if subscribed_users:
             buttons = [
                 [InlineKeyboardButton(f"{user['first_name']} ({user_id})", callback_data=f"info_{user_id}")]
@@ -157,6 +184,8 @@ def register_handlers(app: Client):
 
     @app.on_message(filters.command("user_info") & filters.user(OWNER_ID))
     def user_info(client: Client, message: Message):
+        all_users.add(message.from_user.id)  # Track all users who interact with the bot
+
         if len(message.command) > 1:
             user_id = int(message.command[1])
             user = subscribed_users.get(user_id)
@@ -183,6 +212,8 @@ def register_handlers(app: Client):
 
     @app.on_message(filters.command("remove_user") & filters.user(OWNER_ID))
     def remove_user(client: Client, message: Message):
+        all_users.add(message.from_user.id)  # Track all users who interact with the bot
+
         if len(message.command) > 1:
             user_id = int(message.command[1])
             if user_id in subscribed_users:
