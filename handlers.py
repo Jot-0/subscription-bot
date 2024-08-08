@@ -3,6 +3,7 @@ from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, 
 from config import OWNER_ID
 from state import subscribed_users, awaiting_utr, awaiting_plan
 from datetime import datetime
+from pyrogram.types import InputMediaPhoto
 
 def register_handlers(app: Client):
 
@@ -50,7 +51,40 @@ def register_handlers(app: Client):
             "/user_info <user_id> - Get user information\n"
         )
         message.reply_text(help_text)
+    @app.on_message(filters.command("broadcast") & filters.user(OWNER_ID))
+def broadcast_message(client: Client, message: Message):
+    if not subscribed_users:
+        message.reply_text("There are no users to broadcast the message.")
+        return
 
+    # Check if the message is a text message
+    if message.text:
+        for user_id in subscribed_users.keys():
+            try:
+                client.send_message(chat_id=user_id, text=message.text)
+            except Exception as e:
+                print(f"Failed to send message to {user_id}: {e}")
+
+    # Check if the message is a photo with caption
+    elif message.photo:
+        for user_id in subscribed_users.keys():
+            try:
+                client.send_photo(chat_id=user_id, photo=message.photo.file_id, caption=message.caption)
+            except Exception as e:
+                print(f"Failed to send photo to {user_id}: {e}")
+
+    # Check if the message is a forwarded message
+    elif message.forward_from_message_id:
+        for user_id in subscribed_users.keys():
+            try:
+                client.forward_messages(chat_id=user_id, from_chat_id=message.chat.id, message_ids=message.message_id)
+            except Exception as e:
+                print(f"Failed to forward message to {user_id}: {e}")
+
+    else:
+        message.reply_text("Unsupported message type. Please send text, photo, or forwarded message.")
+
+    message.reply_text("Broadcast message sent.")
     @app.on_message(filters.command("add_user") & filters.user(OWNER_ID))
     def add_user(client: Client, message: Message):
         if len(message.command) > 1:
