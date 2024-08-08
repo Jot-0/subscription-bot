@@ -1,4 +1,4 @@
-API_ID = ''
-API_HASH = ''
-BOT_TOKEN = ''
-OWNER_ID = int('')  # Replace with your Telegram user ID
+API_ID = '6959830859:AAHQEBHK3tjKVgQQiPD3KPC3kynP-5oo14k'
+API_HASH = '29194846'
+BOT_TOKEN = '84552740b95708462684294acd026bcd'
+OWNER_ID = int('827547960')  # Replace with your Telegram user ID
